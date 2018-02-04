@@ -49,14 +49,15 @@ func getQueryURL(QueryID string, Params urlParams) string {
 
 // gojson -input AAPL.json -o go-optionchainroot.go -name optionChainRoot -pkg goyahoo
 func getOptionChainRoot(Params urlParams) (*OptionChainRoot, error) {
+
 	response, err := http.Get(getQueryURL("1", Params))
-	defer response.Body.Close()
 	if err != nil {
 		response, err = http.Get(getQueryURL("2", Params))
 		if err != nil {
 			return nil, err
 		}
 	}
+	defer response.Body.Close()
 
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -74,6 +75,9 @@ func getOptionChainRoot(Params urlParams) (*OptionChainRoot, error) {
 	return &root, nil
 }
 
+/*
+GetExpiries returns all option expiries avaiable for a given symbol
+*/
 func GetExpiries(Symbol string) ([]int64, error) {
 	root, err := getOptionChainRoot(urlParams{QuerySymbol: Symbol})
 	if err != nil {
@@ -83,6 +87,9 @@ func GetExpiries(Symbol string) ([]int64, error) {
 	return root.OptionChain.Result[0].ExpirationDates, nil
 }
 
+/*
+GetExpiryChain returns the option chain from YAHOO finance for a given expiry and symbol
+*/
 func GetExpiryChain(Symbol string, Expiry int64) (*Chain, error) {
 	root, err := getOptionChainRoot(urlParams{QuerySymbol: Symbol, QueryExpiry: Expiry})
 	if err != nil {
